@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
 
-func main() {
+const monitoramentos = 3
+const delay = 5
 
+func main() {
 	exibeIntroducao()
 
 	//Golang nao tem o While, da para rodar um for indefinidamente
@@ -37,6 +40,7 @@ func exibeIntroducao() {
 	versao := 1.1 //isso daqui tbm funciona pq ele pega o tipo e ainda coloca o tipo
 	fmt.Println("Olá, sr.", nome)
 	fmt.Println("Este programa está na versão", versao)
+	fmt.Println("")
 }
 
 func exibeMenu() {
@@ -48,39 +52,38 @@ func exibeMenu() {
 func leComando() int {
 	var comandoLido int
 	fmt.Scan(&comandoLido)
+	fmt.Println("")
 	return comandoLido
 }
 
 func iniciarMonitoramento() {
 	fmt.Println("Monitorando...")
-	site := "https://random-status-code.herokuapp.com/"
+
+	sites := []string{"https://random-status-code.herokuapp.com/", "https://www.alura.com.br", "https://www.caelum.com.br"}
+	sites[0] = "https://random-status-code.herokuapp.com/"
+	sites[1] = "https://www.alura.com.br"
+	sites[2] = "https://www.caelum.com.br"
+
+	for i := 0; i < monitoramentos; i++ {
+		// tipo um map da vida LOL (posicao, quem ta na posiçao)
+		for i, site := range sites {
+			fmt.Println("Testando site:", i, ":", site)
+			testaSite(site)
+		}
+		time.Sleep(delay * time.Second)
+		fmt.Println("")
+	}
+
+	fmt.Println("")
+}
+
+func testaSite(site string) {
 	resp, _ := http.Get(site)
-	// fmt.Println(resp)
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Site:", site, "foi carregado com sucesso!")
 	} else {
 		fmt.Println("Site:", site, "esta com problemas. Status code:", resp.StatusCode)
 	}
+
 }
-
-//Golang só aceita se receber apenas operadores que mandam true ou false
-// if comando == 1 {
-// fmt.Println("Monitorando...")
-// } else if comando == 2 {
-// 	fmt.Println("Exibindo logs...")
-// } else if comando == 0 {
-// 	fmt.Println("Saindo do programa, FONTRAB")
-// } else {
-// 	fmt.Println("Não conheço esse comando")
-// }
-
-// Igual no elixir vc consegue fazer que o go evite receber certos itens vindos de uma funcao
-// apenas utilizando o _
-// _, idade := devolveNomeEIdade()
-// fmt.Println(idade)
-// func devolveNomeEIdade() (string, int) {
-// 	nome := "vitor"
-// 	idade := 27
-// 	return nome, idade
-// }
