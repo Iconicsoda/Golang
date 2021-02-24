@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -14,9 +16,7 @@ const monitoramentos = 3
 const delay = 5
 
 func main() {
-	exibeIntroducao()
-	leSitesDoArquivo()
-
+	// exibeIntroducao()
 	//Golang nao tem o While, da para rodar um for indefinidamente
 	for {
 		exibeMenu()
@@ -27,6 +27,7 @@ func main() {
 			iniciarMonitoramento()
 		case 2:
 			fmt.Println("Exibindo logs...")
+			imprimeLogs()
 		case 0:
 			fmt.Println("Saindo do programa...")
 			os.Exit(0)
@@ -37,15 +38,15 @@ func main() {
 	}
 }
 
-func exibeIntroducao() {
-	//No go quando vc nao atribui valor a uma var ele retorna 0 ou ""
-	var nome string = "Virto"
-	//var idade = 12
-	versao := 1.1 //isso daqui tbm funciona pq ele pega o tipo e ainda coloca o tipo
-	fmt.Println("Olá, sr.", nome)
-	fmt.Println("Este programa está na versão", versao)
-	fmt.Println("")
-}
+// func exibeIntroducao() {
+// 	//No go quando vc nao atribui valor a uma var ele retorna 0 ou ""
+// 	var nome string = "Virto"
+// 	//var idade = 12
+// 	versao := 1.1 //isso daqui tbm funciona pq ele pega o tipo e ainda coloca o tipo
+// 	fmt.Println("Olá, sr.", nome)
+// 	fmt.Println("Este programa está na versão", versao)
+// 	fmt.Println("")
+// }
 
 func exibeMenu() {
 	fmt.Println("1- Iniciar Monitoramento")
@@ -92,8 +93,10 @@ func testaSite(site string) {
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Site:", site, "foi carregado com sucesso!")
+		registraLog(site, true)
 	} else {
 		fmt.Println("Site:", site, "esta com problemas. Status code:", resp.StatusCode)
+		registraLog(site, false)
 	}
 
 }
@@ -135,4 +138,30 @@ func leSitesDoArquivo() []string {
 	arquivo.Close()
 
 	return sites
+}
+
+func registraLog(site string, status bool) {
+
+	arquivo, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+
+	if err != nil {
+		fmt.Println("Algo de errado nao esta certo:", err)
+	}
+
+	//o Golang representa a data de uma forma um pouco diferente, va na doc q vai fazer sentido
+	arquivo.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + site + " - online: " + strconv.FormatBool(status) + "\n")
+
+	arquivo.Close()
+}
+
+func imprimeLogs() {
+
+	//esse daqui ja le o arquivo e ja insta da close, nao precisa fechar
+	arquivo, err := ioutil.ReadFile("log.txt")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(arquivo))
 }
