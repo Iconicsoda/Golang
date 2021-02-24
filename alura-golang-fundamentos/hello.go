@@ -2,26 +2,31 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 )
 
 func main() {
 
 	exibeIntroducao()
-	exibeMenu()
-	comando := leComando()
 
-	switch comando {
-	case 1:
-		fmt.Println("Monitorando...")
-	case 2:
-		fmt.Println("Exibindo logs...")
-	case 0:
-		fmt.Println("Saindo do programa...")
-		os.Exit(0)
-	default:
-		fmt.Println("Não conheço esse comando")
-		os.Exit(-1)
+	//Golang nao tem o While, da para rodar um for indefinidamente
+	for {
+		exibeMenu()
+		comando := leComando()
+
+		switch comando {
+		case 1:
+			iniciarMonitoramento()
+		case 2:
+			fmt.Println("Exibindo logs...")
+		case 0:
+			fmt.Println("Saindo do programa...")
+			os.Exit(0)
+		default:
+			fmt.Println("Não conheço esse comando")
+			os.Exit(-1)
+		}
 	}
 }
 
@@ -46,6 +51,19 @@ func leComando() int {
 	return comandoLido
 }
 
+func iniciarMonitoramento() {
+	fmt.Println("Monitorando...")
+	site := "https://random-status-code.herokuapp.com/"
+	resp, _ := http.Get(site)
+	// fmt.Println(resp)
+
+	if resp.StatusCode == 200 {
+		fmt.Println("Site:", site, "foi carregado com sucesso!")
+	} else {
+		fmt.Println("Site:", site, "esta com problemas. Status code:", resp.StatusCode)
+	}
+}
+
 //Golang só aceita se receber apenas operadores que mandam true ou false
 // if comando == 1 {
 // fmt.Println("Monitorando...")
@@ -55,4 +73,14 @@ func leComando() int {
 // 	fmt.Println("Saindo do programa, FONTRAB")
 // } else {
 // 	fmt.Println("Não conheço esse comando")
+// }
+
+// Igual no elixir vc consegue fazer que o go evite receber certos itens vindos de uma funcao
+// apenas utilizando o _
+// _, idade := devolveNomeEIdade()
+// fmt.Println(idade)
+// func devolveNomeEIdade() (string, int) {
+// 	nome := "vitor"
+// 	idade := 27
+// 	return nome, idade
 // }
