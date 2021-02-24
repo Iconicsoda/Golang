@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -12,6 +15,7 @@ const delay = 5
 
 func main() {
 	exibeIntroducao()
+	leSitesDoArquivo()
 
 	//Golang nao tem o While, da para rodar um for indefinidamente
 	for {
@@ -59,10 +63,12 @@ func leComando() int {
 func iniciarMonitoramento() {
 	fmt.Println("Monitorando...")
 
-	sites := []string{"https://random-status-code.herokuapp.com/", "https://www.alura.com.br", "https://www.caelum.com.br"}
-	sites[0] = "https://random-status-code.herokuapp.com/"
-	sites[1] = "https://www.alura.com.br"
-	sites[2] = "https://www.caelum.com.br"
+	// sites := []string{"https://random-status-code.herokuapp.com/", "https://www.alura.com.br", "https://www.caelum.com.br"}
+	// sites[0] = "https://random-status-code.herokuapp.com/"
+	// sites[1] = "https://www.alura.com.br"
+	// sites[2] = "https://www.caelum.com.br"
+
+	sites := leSitesDoArquivo()
 
 	for i := 0; i < monitoramentos; i++ {
 		// tipo um map da vida LOL (posicao, quem ta na posiçao)
@@ -78,7 +84,11 @@ func iniciarMonitoramento() {
 }
 
 func testaSite(site string) {
-	resp, _ := http.Get(site)
+	resp, err := http.Get(site)
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
 
 	if resp.StatusCode == 200 {
 		fmt.Println("Site:", site, "foi carregado com sucesso!")
@@ -86,4 +96,43 @@ func testaSite(site string) {
 		fmt.Println("Site:", site, "esta com problemas. Status code:", resp.StatusCode)
 	}
 
+}
+
+func leSitesDoArquivo() []string {
+	var sites []string
+
+	// arquivo, err := ioutil.ReadFile("sites.txt")
+
+	arquivo, err := os.Open("sites.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+	}
+
+	//Retorna um leitor
+	leitor := bufio.NewReader(arquivo)
+
+	for {
+		// '' significa bytes
+		linha, err := leitor.ReadString('\n')
+
+		// Corta o final dos espaços
+		linha = strings.TrimSpace(linha)
+
+		sites = append(sites, linha)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Println("Ocorreu um erro na leitura:", err)
+		}
+
+		//Esse string ele é tipo um ToString
+		// fmt.Println(string(linha))
+	}
+
+	//Sempre uma boa pratica FECHAR O TXT ou o arquivo
+	arquivo.Close()
+
+	return sites
 }
