@@ -24,3 +24,22 @@
 //     fmt.Println(Somando(1,1,1))
 //     fmt.Println(Somando(1,1,2,4))
 // }
+
+// antigo code
+// contaDaSilvia := new(c.ContaCorrente)
+// contaDaSilvia.Titular = "Silvia"
+// contaDaSilvia.Saldo = 500
+
+// contaDoGustavo := c.ContaCorrente{Titular: "Gustavo", Saldo: 1000}
+
+// statusDepositar := contaDaSilvia.Transferir(100, &contaDoGustavo)
+
+// fmt.Println(statusDepositar)
+
+// fmt.Println(contaDoGustavo)
+
+// contaDaSilvia.Sacar(-100)
+
+// status, valor := contaDaSilvia.Depositar(1000)
+// fmt.Println(status, valor)
+// fmt.Println(contaDaSilvia.Saldo)
