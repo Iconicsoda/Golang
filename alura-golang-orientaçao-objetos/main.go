@@ -6,10 +6,20 @@ import (
 	"fmt"
 )
 
+func pagarBoleto(conta verificarConta, valorDoBoleto float64) {
+	conta.Sacar(valorDoBoleto)
+}
+
+type verificarConta interface {
+	Sacar(valor float64) string
+}
+
 func main() {
 	contaExemplo := c.ContaCorrente{}
 	contaExemplo.Depositar(100.56)
-
+	contaDenis := c.ContaPoupanca{}
+	fmt.Println(contaDenis)
+	pagarBoleto(&contaExemplo, 60)
 	fmt.Println(contaExemplo.ObterSaldo())
 
 	// contaDoBruno := c.ContaCorrente{
